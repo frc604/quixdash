@@ -1,9 +1,14 @@
 import React, { Component } from "react";
-import Dygraph from "dygraphs";
+import ApexCharts, { XAXISRANGE } from 'apexcharts'
 
-class Chart extends Component {
-  data = [];
+class LiveChart extends Component {
   lastVal = 0; // Used for faking data
+  data = [];
+
+  constructor(props) {
+    super(props);
+    this.ref = React.createRef();
+  }
 
   constructor(props) {
     super(props);
@@ -25,19 +30,68 @@ class Chart extends Component {
 
   createChart = () => {
     const { title } = this.props;
-    this.chart = new Dygraph(this.ref.current, this.data, {
-      title: title,
-      showRoller: true,
-      labels: ["Time", "Value"]
-    });
+
+    var options = {
+      chart: {
+        id: 'realtime',
+        height: 350,
+        type: 'line',
+        animations: {
+          enabled: true,
+          easing: 'linear',
+          dynamicAnimation: {
+            speed: 1
+          }
+        }
+      },
+      series: [],
+      dataLabels: {
+        enabled: false
+      },
+      stroke: {
+        curve: 'smooth'
+      },
+      title: {
+        text: 'Dynamic Updating Chart',
+        align: 'center'
+      },
+      markers: {
+        size: 0
+      },
+      xaxis: {
+        type: 'numeric',
+        tickPlacement: 'between',
+        floating: false,
+      },
+      legend: {
+        show: false
+      },
+      noData: {
+        text: 'Loading...'
+      }
+    };
+
+    this.chart = new ApexCharts(this.ref.current, options);
+
+    this.chart.render();
   };
 
   addFakeData = () => {
     const elapsedTime = new Date().getTime() - this.startTime;
     const elapsedTimeMs = elapsedTime / 1000;
     this.lastVal += Math.random() * 2 - 1;
-    this.data.push([elapsedTimeMs, this.lastVal]);
-    this.chart.updateOptions({ file: this.data });
+
+    var dataChild = {
+      x: elapsedTimeMs,
+      y: this.lastVal
+    };
+
+    this.data.push(dataChild);
+
+    this.chart.updateSeries([{
+        name: 'Value',
+        data: this.data
+    }]);
   };
 
   render() {
@@ -45,4 +99,4 @@ class Chart extends Component {
   }
 }
 
-export default Chart;
+export default LiveChart;
