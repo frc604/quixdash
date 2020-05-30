@@ -1,9 +1,14 @@
 import React, { Component } from "react";
-import { lightningChart } from "@arction/lcjs";
+import Dygraph from "dygraphs";
 
 class Chart extends Component {
-  chartId = Math.trunc(Math.random() * 100000); // Unique ID to target div
+  data = [];
   lastVal = 0; // Used for faking data
+
+  constructor(props) {
+    super(props);
+    this.ref = React.createRef();
+  }
 
   componentDidMount() {
     this.createChart();
@@ -14,27 +19,29 @@ class Chart extends Component {
   }
 
   componentWillUnmount() {
-    this.chart.dispose();
+    this.chart.destroy();
     window.clearInterval(this.interval);
   }
 
   createChart = () => {
     const { title } = this.props;
-    this.chart = lightningChart().ChartXY({ containerId: this.chartId });
-    this.chart.setTitle(title);
-    this.lineSeries = this.chart.addLineSeries();
-    this.lineSeries.setStrokeStyle(style => style.setThickness(3));
+    this.chart = new Dygraph(this.ref.current, this.data, {
+      title: title,
+      showRoller: true,
+      labels: ["Time", "Value"]
+    });
   };
 
   addFakeData = () => {
     const elapsedTime = new Date().getTime() - this.startTime;
     const elapsedTimeMs = elapsedTime / 1000;
     this.lastVal += Math.random() * 2 - 1;
-    this.lineSeries.add([{ x: elapsedTimeMs, y: this.lastVal }]);
+    this.data.push([elapsedTimeMs, this.lastVal]);
+    this.chart.updateOptions({ file: this.data });
   };
 
   render() {
-    return <div id={this.chartId} style={{ height: "100%" }} />;
+    return <div ref={this.ref} style={{ height: "100%" }} />;
   }
 }
 
