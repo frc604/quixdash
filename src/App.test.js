@@ -1,9 +1,9 @@
-import React from 'react';
-import { render } from '@testing-library/react';
-import App from './App';
+import React from "react";
+import { render } from "@testing-library/react";
+import App from "./App";
 
-test('renders hello world', () => {
+test("renders Quixdash", () => {
   const { getByText } = render(<App />);
-  const text = getByText(/Hello World!/i);
+  const text = getByText(/Quixdash/i);
   expect(text).toBeInTheDocument();
 });

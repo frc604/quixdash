@@ -1,9 +1,12 @@
-import React from 'react';
+import React from "react";
+import Navbar from "react-bootstrap/Navbar";
 
 function App() {
   return (
     <div>
-      Hello World!
+      <Navbar bg="dark" variant="dark">
+        <Navbar.Brand>Quixdash</Navbar.Brand>
+      </Navbar>
     </div>
   );
 }
