@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Chart from 'chart.js'
+import Chart from "chart.js";
 import Button from "react-bootstrap/Button";
 
 class LiveChart extends Component {
@@ -10,7 +10,7 @@ class LiveChart extends Component {
     super(props);
     this.ref = React.createRef();
     this.state = {
-      isPaused: false
+      isPaused: false,
     };
   }
 
@@ -31,28 +31,30 @@ class LiveChart extends Component {
     const chartRef = this.ref.current.getContext("2d");
 
     this.chart = new Chart(chartRef, {
-      type: 'scatter',
+      type: "scatter",
       data: {
         labels: [1],
-        datasets: [{
-          label: 'Data??',
-          showLine: true,
-          pointRadius: 0,
-          fill: false,
-          borderWidth: 6,
-          borderColor: "#FBB604",
-          data: this.data
-        }]
+        datasets: [
+          {
+            label: "Data??",
+            showLine: true,
+            pointRadius: 0,
+            fill: false,
+            borderWidth: 6,
+            borderColor: "#FBB604",
+            data: this.data,
+          },
+        ],
       },
       options: {
         title: {
           display: true,
-          text: 'World population per region (in millions)'
+          text: "World population per region (in millions)",
         },
         animation: {
-          duration: 0.01
+          duration: 0.01,
         },
-      }
+      },
     });
   };
 
@@ -63,12 +65,12 @@ class LiveChart extends Component {
 
     let dataChild = {
       x: elapsedTimeMs,
-      y: this.lastVal
+      y: this.lastVal,
     };
 
-    if(!this.state.isPaused) {
+    if (!this.state.isPaused) {
       this.chart.data.datasets[0].data.push(...this.dataBuffer);
-      this.dataBuffer = []
+      this.dataBuffer = [];
       this.chart.data.datasets[0].data.push(dataChild);
       this.chart.update();
     } else {
@@ -83,26 +85,26 @@ class LiveChart extends Component {
     this.startTime = new Date().getTime();
     this.lastVal = 0;
     this.chart.update();
-    this.setState({isPaused: false});
-  }
+    this.setState({ isPaused: false });
+  };
 
   pause = () => {
-    this.setState({isPaused: !this.state.isPaused});
-  }
+    this.setState({ isPaused: !this.state.isPaused });
+  };
 
   update = () => {
     this.chart.data.datasets[0].data.push(...this.dataBuffer);
     this.dataBuffer = [];
-  }
+  };
 
   stepForward = () => {
     this.chart.data.datasets[0].data.push(this.dataBuffer[0]);
     this.dataBuffer.shift();
-  }
+  };
 
   stepBackwards = () => {
     this.chart.data.datasets[0].data.pop();
-  }
+  };
 
   render() {
     return (
@@ -111,8 +113,12 @@ class LiveChart extends Component {
         <Button onClick={this.clear}>Clear</Button>
         <Button onClick={this.pause}>Pause</Button>
         <Button onClick={this.update}>Update</Button>
-        <Button onClick={this.stepBackwards} disabled={!this.state.isPaused}> ← </Button>
-        <Button onClick={this.stepForward} disabled={!this.state.isPaused}> → </Button>
+        <Button onClick={this.stepBackwards} disabled={!this.state.isPaused}>
+          ←
+        </Button>
+        <Button onClick={this.stepForward} disabled={!this.state.isPaused}>
+          →
+        </Button>
       </>
     );
   }
