@@ -4,10 +4,14 @@ import Button from "react-bootstrap/Button";
 
 class LiveChart extends Component {
   lastVal = 0; // Used for faking data
+  dataBuffer = [];
 
   constructor(props) {
     super(props);
     this.ref = React.createRef();
+    this.state = {
+      isPaused: false
+    };
   }
 
   componentDidMount() {
@@ -62,15 +66,42 @@ class LiveChart extends Component {
       y: this.lastVal
     };
 
-    this.chart.data.datasets[0].data.push(dataChild);
-
-    this.chart.update();
+    if(!this.state.isPaused) {
+      this.chart.data.datasets[0].data.push(...this.dataBuffer);
+      this.dataBuffer = []
+      this.chart.data.datasets[0].data.push(dataChild);
+      this.chart.update();
+    } else {
+      this.dataBuffer.push(dataChild);
+      this.chart.update();
+    }
   };
 
   clear = () => {
     this.chart.data.datasets[0].data = [];
+    this.dataBuffer = [];
     this.startTime = new Date().getTime();
     this.lastVal = 0;
+    this.chart.update();
+    this.setState({isPaused: false});
+  }
+
+  pause = () => {
+    this.setState({isPaused: !this.state.isPaused});
+  }
+
+  update = () => {
+    this.chart.data.datasets[0].data.push(...this.dataBuffer);
+    this.dataBuffer = [];
+  }
+
+  stepForward = () => {
+    this.chart.data.datasets[0].data.push(this.dataBuffer[0]);
+    this.dataBuffer.shift();
+  }
+
+  stepBackwards = () => {
+    this.chart.data.datasets[0].data.pop();
   }
 
   render() {
@@ -78,6 +109,10 @@ class LiveChart extends Component {
       <>
         <canvas ref={this.ref} style={{ height: "100%" }} />
         <Button onClick={this.clear}>Clear</Button>
+        <Button onClick={this.pause}>Pause</Button>
+        <Button onClick={this.update}>Update</Button>
+        <Button onClick={this.stepBackwards} disabled={!this.state.isPaused}> ← </Button>
+        <Button onClick={this.stepForward} disabled={!this.state.isPaused}> → </Button>
       </>
     );
   }
