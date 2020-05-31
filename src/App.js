@@ -8,7 +8,7 @@ function App() {
       <Navbar bg="dark" variant="dark">
         <Navbar.Brand>QuixDash</Navbar.Brand>
       </Navbar>
-      <div style={{ width: "50%", height: "50vh" }}>
+      <div style={{ width: "100%" }}>
         <Chart title="Some Sensor" />
       </div>
     </>
