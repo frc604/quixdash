@@ -1,9 +1,8 @@
 import React, { Component } from "react";
-import ApexCharts from 'apexcharts'
+import Chart from 'chart.js'
 
 class LiveChart extends Component {
   lastVal = 0; // Used for faking data
-  data = [];
 
   constructor(props) {
     super(props);
@@ -24,49 +23,32 @@ class LiveChart extends Component {
   }
 
   createChart = () => {
-    const options = {
-      chart: {
-        id: 'realtime',
-        height: 350,
-        type: 'line',
-        animations: {
-          enabled: true,
-          easing: 'linear',
-          dynamicAnimation: {
-            speed: 1
-          }
-        }
+    const chartRef = this.ref.current.getContext("2d");
+
+    this.chart = new Chart(chartRef, {
+      type: 'scatter',
+      data: {
+        labels: [1],
+        datasets: [{
+          label: 'Data??',
+          showLine: true,
+          pointRadius: 0,
+          fill: false,
+          borderWidth: 6,
+          borderColor: "#FBB604",
+          data: this.data
+        }]
       },
-      series: [],
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        curve: 'smooth'
-      },
-      title: {
-        text: 'Dynamic Updating Chart',
-        align: 'center'
-      },
-      markers: {
-        size: 0
-      },
-      xaxis: {
-        type: 'numeric',
-        tickPlacement: 'between',
-        floating: false,
-      },
-      legend: {
-        show: false
-      },
-      noData: {
-        text: 'Loading...'
+      options: {
+        title: {
+          display: true,
+          text: 'World population per region (in millions)'
+        },
+        animation: {
+          duration: 0.01
+        },
       }
-    };
-
-    this.chart = new ApexCharts(this.ref.current, options);
-
-    this.chart.render();
+    });
   };
 
   addFakeData = () => {
@@ -79,16 +61,13 @@ class LiveChart extends Component {
       y: this.lastVal
     };
 
-    this.data.push(dataChild);
+    this.chart.data.datasets[0].data.push(dataChild);
 
-    this.chart.updateSeries([{
-        name: 'Value',
-        data: this.data
-    }]);
+    this.chart.update();
   };
 
   render() {
-    return <div ref={this.ref} style={{ height: "100%" }} />;
+    return <canvas ref={this.ref} style={{ height: "100%" }} />;
   }
 }
 
