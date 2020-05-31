@@ -1,14 +1,9 @@
 import React, { Component } from "react";
-import ApexCharts, { XAXISRANGE } from 'apexcharts'
+import ApexCharts from 'apexcharts'
 
 class LiveChart extends Component {
   lastVal = 0; // Used for faking data
   data = [];
-
-  constructor(props) {
-    super(props);
-    this.ref = React.createRef();
-  }
 
   constructor(props) {
     super(props);
@@ -29,9 +24,7 @@ class LiveChart extends Component {
   }
 
   createChart = () => {
-    const { title } = this.props;
-
-    var options = {
+    const options = {
       chart: {
         id: 'realtime',
         height: 350,
@@ -81,7 +74,7 @@ class LiveChart extends Component {
     const elapsedTimeMs = elapsedTime / 1000;
     this.lastVal += Math.random() * 2 - 1;
 
-    var dataChild = {
+    let dataChild = {
       x: elapsedTimeMs,
       y: this.lastVal
     };
