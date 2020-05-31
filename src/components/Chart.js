@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Chart from 'chart.js'
+import Button from "react-bootstrap/Button";
 
 class LiveChart extends Component {
   lastVal = 0; // Used for faking data
@@ -66,8 +67,19 @@ class LiveChart extends Component {
     this.chart.update();
   };
 
+  clear = () => {
+    this.chart.data.datasets[0].data = [];
+    this.startTime = new Date().getTime();
+    this.lastVal = 0;
+  }
+
   render() {
-    return <canvas ref={this.ref} style={{ height: "100%" }} />;
+    return (
+      <>
+        <canvas ref={this.ref} style={{ height: "100%" }} />
+        <Button onClick={this.clear}>Clear</Button>
+      </>
+    );
   }
 }
 
