@@ -1,3 +1,4 @@
+import "chartjs-plugin-zoom";
 import React, { Component } from "react";
 import Chart from "chart.js";
 import Button from "react-bootstrap/Button";
@@ -38,22 +39,81 @@ class LiveChart extends Component {
           {
             label: "Data??",
             showLine: true,
-            pointRadius: 0,
+            pointRadius: 0.5,
             fill: false,
-            borderWidth: 6,
+            borderWidth: 1,
             borderColor: "#FBB604",
+            backgroundColor: "#FBB604",
+            datalabels: {
+              align: "start",
+              anchor: "start",
+            },
             data: this.data,
           },
         ],
       },
       options: {
+        live: true,
         title: {
           display: true,
-          text: "World population per region (in millions)",
+          text: "#AllGraphEverything",
+        },
+        tooltips: {
+          mode: "nearest",
+          intersect: false,
+          yAlign: "bottom",
         },
         animation: {
           duration: 0.01,
         },
+        pan: {
+          enabled: true,
+          mode: "x",
+        },
+        zoom: {
+          enabled: true,
+          mode: "x",
+        },
+      },
+    });
+
+    var originalLineDraw = Chart.controllers.line.prototype.draw;
+    Chart.helpers.extend(Chart.controllers.line.prototype, {
+      draw: function () {
+        originalLineDraw.apply(this, arguments);
+
+        if (this.chart.tooltip._active && this.chart.tooltip._active.length) {
+          var activePoint = this.chart.tooltip._active[0];
+          var ctx = this.chart.ctx;
+
+          var x = activePoint.tooltipPosition().x;
+          var y = activePoint.tooltipPosition().y;
+
+          var topY = this.chart.scales["y-axis-1"].top;
+          var bottomY = this.chart.scales["y-axis-1"].bottom;
+
+          var leftX = this.chart.scales["x-axis-1"].left;
+          var rightX = this.chart.scales["x-axis-1"].right;
+
+          // draw line
+          ctx.save();
+
+          ctx.beginPath();
+          ctx.moveTo(x, topY);
+          ctx.lineTo(x, bottomY);
+          ctx.lineWidth = 0.75;
+          ctx.strokeStyle = "#0490fb";
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(leftX, y);
+          ctx.lineTo(rightX, y);
+          ctx.lineWidth = 0.75;
+          ctx.strokeStyle = "#0490fb";
+          ctx.stroke();
+
+          ctx.restore();
+        }
       },
     });
   };
@@ -75,7 +135,6 @@ class LiveChart extends Component {
       this.chart.update();
     } else {
       this.dataBuffer.push(dataChild);
-      this.chart.update();
     }
   };
 
@@ -95,15 +154,20 @@ class LiveChart extends Component {
   update = () => {
     this.chart.data.datasets[0].data.push(...this.dataBuffer);
     this.dataBuffer = [];
+    this.chart.update();
   };
 
   stepForward = () => {
-    this.chart.data.datasets[0].data.push(this.dataBuffer[0]);
-    this.dataBuffer.shift();
+    if (this.dataBuffer.length !== 1) {
+      this.chart.data.datasets[0].data.push(this.dataBuffer[0]);
+      this.dataBuffer.shift();
+      this.chart.update();
+    }
   };
 
   stepBackwards = () => {
     this.chart.data.datasets[0].data.pop();
+    this.chart.update();
   };
 
   render() {
